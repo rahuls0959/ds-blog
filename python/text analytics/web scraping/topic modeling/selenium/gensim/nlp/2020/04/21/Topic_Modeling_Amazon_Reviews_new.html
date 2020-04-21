@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Topic Modeling of Product Reviews on Amazon Scraped using Selenium in Python | Home</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Topic Modeling of Product Reviews on Amazon Scraped using Selenium in Python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial demonstrating scraping product reviews from Amazon and extracting and analysing the topics from the text data." />
+<meta property="og:description" content="A tutorial demonstrating scraping product reviews from Amazon and extracting and analysing the topics from the text data." />
+<link rel="canonical" href="https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html" />
+<meta property="og:url" content="https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html" />
+<meta property="og:site_name" content="Home" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-21T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"A tutorial demonstrating scraping product reviews from Amazon and extracting and analysing the topics from the text data.","@type":"BlogPosting","headline":"Topic Modeling of Product Reviews on Amazon Scraped using Selenium in Python","url":"https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html","datePublished":"2020-04-21T00:00:00-05:00","dateModified":"2020-04-21T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/ds-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://rahuls0959.github.io/ds-blog/feed.xml" title="Home" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-163975149-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/ds-blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Topic Modeling of Product Reviews on Amazon Scraped using Selenium in Python | Home</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Topic Modeling of Product Reviews on Amazon Scraped using Selenium in Python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial demonstrating scraping product reviews from Amazon and extracting and analysing the topics from the text data." />
+<meta property="og:description" content="A tutorial demonstrating scraping product reviews from Amazon and extracting and analysing the topics from the text data." />
+<link rel="canonical" href="https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html" />
+<meta property="og:url" content="https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html" />
+<meta property="og:site_name" content="Home" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-21T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"A tutorial demonstrating scraping product reviews from Amazon and extracting and analysing the topics from the text data.","@type":"BlogPosting","headline":"Topic Modeling of Product Reviews on Amazon Scraped using Selenium in Python","url":"https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html","datePublished":"2020-04-21T00:00:00-05:00","dateModified":"2020-04-21T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rahuls0959.github.io/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://rahuls0959.github.io/ds-blog/feed.xml" title="Home" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-163975149-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ds-blog/">Home</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/ds-blog/about/">About Me</a><a class="page-link" href="/ds-blog/search/">Search</a><a class="page-link" href="/ds-blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Topic Modeling of Product Reviews on Amazon Scraped using Selenium in Python</h1><p class="page-description">A tutorial demonstrating scraping product reviews from Amazon and extracting and analysing the topics from the text data.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-04-21T00:00:00-05:00" itemprop="datePublished">
+        Apr 21, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      11 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#python">python</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#text analytics">text analytics</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#web scraping">web scraping</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#topic modeling">topic modeling</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#selenium">selenium</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#gensim">gensim</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#nlp">nlp</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/rahuls0959/ds-blog/tree/master/_notebooks/2020-04-21-Topic_Modeling_Amazon_Reviews_new.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/ds-blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/rahuls0959/ds-blog/blob/master/_notebooks/2020-04-21-Topic_Modeling_Amazon_Reviews_new.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/ds-blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Introduction">Introduction </a></li>
+<li class="toc-entry toc-h2"><a href="#Web-Scraping">Web Scraping </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Import-Packages">Import Packages </a></li>
+<li class="toc-entry toc-h3"><a href="#Script-for-Scraping">Script for Scraping </a></li>
+<li class="toc-entry toc-h3"><a href="#Data-Cleaning">Data Cleaning </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Topic-Modeling-using-LDA">Topic Modeling using LDA </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Data-Pre-processing">Data Pre-processing </a></li>
+<li class="toc-entry toc-h3"><a href="#Preparign-Document-Term-Matrix">Preparign Document-Term-Matrix </a></li>
+<li class="toc-entry toc-h3"><a href="#Running-LDA-Model">Running LDA Model </a></li>
+<li class="toc-entry toc-h3"><a href="#Extracting-Topics">Extracting Topics </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Endnotes">Endnotes </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-04-21-Topic_Modeling_Amazon_Reviews_new.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Introduction">
+<a class="anchor" href="#Introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction<a class="anchor-link" href="#Introduction"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The blog covers the step-by-step process to scrap product reviews from Amazon webpage and analysing main topics from the extracted data. We will scrap 1000 reviews from the Amazon for Apple iPhone 11 64GB. With this data, we will convert each review doc into bag-of words for applying the topic modeling algorithm. We will be using Latent Dirichlet Allocation (LDA) algorithm in this tutorial. The main python libraries used are:</p>
+<ul>
+<li>selenium: Selenium is a portable framework for testing web applications. We will be using this to interact with the browser and open URLs (<a href="https://pypi.org/project/selenium/">https://pypi.org/project/selenium/</a>)</li>
+<li>gensim: Gensim is an open-source library for unsupervised topic modeling and natural language processing, using modern statistical machine learning (<a href="https://pypi.org/project/gensim/">https://pypi.org/project/gensim/</a>)</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Web-Scraping">
+<a class="anchor" href="#Web-Scraping" aria-hidden="true"><span class="octicon octicon-link"></span></a>Web Scraping<a class="anchor-link" href="#Web-Scraping"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Web scraping is a technique for extracting information from the internet automatically using a software that simulates human web surfing. Web scraping helps us extract large volumes of data about customers, products, people, stock markets, etc. It is usually difficult to get this kind of information on a large scale using traditional data collection methods. We can utilize the data collected from a website such as e-commerce portal, social media channels to understand customer behaviors and sentiments, buying patterns, and brand attribute associations which are critical insights for any business.</p>
+<p>The first and foremost thing while scraping a website is to understand the structure of the website. We will be scraping the reviews for Apple iPhone 11 64GB on Amazon.in website. We will scrape 1000 reviews from different users across multiple pages. We will scrape user name, date of review and review and export it into a .csv file for any further analysis.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Import-Packages">
+<a class="anchor" href="#Import-Packages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Import Packages<a class="anchor-link" href="#Import-Packages"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Instll selenium package (if not already worked with before) using command '!pip install selenium'</li>
+<li>Import webdriver from selenium in the notebook which we use to open an instance of Chrome browser</li>
+<li>The executable file for launching Chrome 'chromedriver.exe' should be in the same folder as the notebook</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Importing packages</span>
+<span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Script-for-Scraping">
+<a class="anchor" href="#Script-for-Scraping" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script for Scraping<a class="anchor-link" href="#Script-for-Scraping"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The below code opens the new chrome browser window and open our website with the url link provided. By the way, chrome knows that you are accessing it through an automated software!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="s1">'chromedriver.exe'</span><span class="p">)</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s1">'https://www.amazon.in/Apple-iPhone-11-64GB-White/product-reviews/B07XVMCLP7/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&amp;reviewerType=all_reviews&amp;pageNumber1'</span>
+<span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Woha! We just opened an url from python notebook.</p>
+<p><img src="/ds-blog/images/copied_from_nb/img/chrome.png" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will inspect 3 items (user id, date and comment) on our web page and understand how we can extract them.</p>
+<ul>
+<li>
+<p>Xpath for User id: Inspecting the userid, we can see the highlighted text represents the XML code for user id.The XML path (XPath)for the userid is shown below:</p>
+<p>//*[@id="customer_review-RBOIMRTKIYBBR"]/div[1]/a/div[2]/span</p>
+</li>
+</ul>
+<p><img src="/ds-blog/images/copied_from_nb/img/chrome-2.png" alt=""></p>
+<p>There is an interesting thing to note here that the XML path contains a review id, which uniquely denotes each review on the website. This will be very helpful as we try to recursively scrape multiple comments.</p>
+<ul>
+<li>Xpath for Date &amp; review: Similarily, we will find the XPaths for date and review. </li>
+<li>Selenium has a function called “find_elements_by_xpath”. We will pass our XPath into this function and get a selenium element. Once we have the element, we can extract the text inside our XPath using the ‘text’ function.</li>
+<li>We will recursively run the code for different review id and extract user id, date and review for each review id. Also, we will recursively go to next pages by simply changing the page numbers in the url to extract more comments until we get the desired number of comments.</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="s1">'chromedriver.exe'</span><span class="p">)</span>
+
+<span class="c1">#Creating empty data frame to store user_id, dates and comments from ~5K users.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'date'</span><span class="p">,</span><span class="s1">'username'</span><span class="p">,</span><span class="s1">'review'</span><span class="p">])</span>
+
+<span class="n">j</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">j</span><span class="o">&lt;=</span><span class="mi">130</span><span class="p">):</span>
+    <span class="c1"># Running while loop only till we get 1K reviews</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">'https://www.amazon.in/Apple-iPhone-11-64GB-White/product-reviews/B07XVMCLP7/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&amp;reviewerType=all_reviews&amp;pageNumber='</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements_by_xpath</span><span class="p">(</span><span class="s2">"//*[contains(@id,'customer_review-')]"</span><span class="p">)</span>
+        <span class="n">review_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="n">review_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s1">'id'</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">review_ids</span><span class="p">:</span>
+            <span class="c1">#Extract dates from for each user on a page</span>
+            <span class="n">date_element</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements_by_xpath</span><span class="p">(</span><span class="s1">'//*[@id="'</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span><span class="s1">'"]/span'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">date_element</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="c1">#Extract user ids from each user on a page</span>
+            <span class="n">username_element</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements_by_xpath</span><span class="p">(</span><span class="s1">'//*[@id="'</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span><span class="s1">'"]/div[1]/a/div[2]/span'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">username_element</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="c1">#Extract Message for each user on a page</span>
+            <span class="n">review_element</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements_by_xpath</span><span class="p">(</span><span class="s1">'//*[@id="'</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span><span class="s1">'"]/div[4]'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">review</span> <span class="o">=</span> <span class="n">review_element</span><span class="o">.</span><span class="n">text</span>
+            
+           <span class="c1">#Adding date, userid and comment for each user in a dataframe    </span>
+            <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">date</span><span class="p">,</span><span class="n">username</span><span class="p">,</span><span class="n">review</span><span class="p">]</span>
+        <span class="n">j</span><span class="o">=</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">break</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Data-Cleaning">
+<a class="anchor" href="#Data-Cleaning" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Cleaning<a class="anchor-link" href="#Data-Cleaning"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>We perform few data cleaning operations such as replacing line breaks with a space and copy the data into .csv file which can be used for further analysis.</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">remove_space</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span><span class="s2">" "</span><span class="p">)</span>
+
+<span class="n">data</span><span class="p">[</span><span class="s1">'review'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'review'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">remove_space</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'amazon_reviews.csv'</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">','</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'amazon_reviews.csv'</span><span class="p">,</span><span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">data</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>username</th>
+      <th>review</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>Reviewed in India on 20 October 2019</td>
+      <td>Suman Biswas</td>
+      <td>May be my first negative review about the prod...</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Reviewed in India on 17 September 2019</td>
+      <td>Kaushik Bajaj</td>
+      <td>It's very expensive but the quality you get is...</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Reviewed in India on 29 September 2019</td>
+      <td>Sunny Kumar</td>
+      <td>The iPhone design is good and the camera quali...</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Reviewed in India on 30 September 2019</td>
+      <td>shanu Kumar</td>
+      <td>Awesome Phone. Nice upgrade from iPhone 6s to ...</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Reviewed in India on 14 October 2019</td>
+      <td>Amazon Customer</td>
+      <td>My Phone is Producing Too Much Heat Even Didn’...</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <td>995</td>
+      <td>Reviewed in India on 4 March 2020</td>
+      <td>Md.Imran</td>
+      <td>Rt</td>
+    </tr>
+    <tr>
+      <td>996</td>
+      <td>Reviewed in India on 1 March 2020</td>
+      <td>Amazon Customer</td>
+      <td>❤️</td>
+    </tr>
+    <tr>
+      <td>997</td>
+      <td>Reviewed in India on 9 March 2020</td>
+      <td>Chirag Patel</td>
+      <td>Ok</td>
+    </tr>
+    <tr>
+      <td>998</td>
+      <td>Reviewed in India on 11 March 2020</td>
+      <td>chintu</td>
+      <td>Excellent</td>
+    </tr>
+    <tr>
+      <td>999</td>
+      <td>Reviewed in India on 8 March 2020</td>
+      <td>Amazon Customer</td>
+      <td>Excellent</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 3 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Since the goal of further analysis is to perform topic modeling, we will solely focus on the review text, and drop other metadata columns i.e. date and user name.</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Remove the columns</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'date'</span><span class="p">,</span> <span class="s1">'username'</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Print out the data</span>
+<span class="n">data</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>review</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>May be my first negative review about the prod...</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>It's very expensive but the quality you get is...</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>The iPhone design is good and the camera quali...</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Awesome Phone. Nice upgrade from iPhone 6s to ...</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>My Phone is Producing Too Much Heat Even Didn’...</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <td>995</td>
+      <td>Rt</td>
+    </tr>
+    <tr>
+      <td>996</td>
+      <td>❤️</td>
+    </tr>
+    <tr>
+      <td>997</td>
+      <td>Ok</td>
+    </tr>
+    <tr>
+      <td>998</td>
+      <td>Excellent</td>
+    </tr>
+    <tr>
+      <td>999</td>
+      <td>Excellent</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 1 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Topic-Modeling-using-LDA">
+<a class="anchor" href="#Topic-Modeling-using-LDA" aria-hidden="true"><span class="octicon octicon-link"></span></a>Topic Modeling using LDA<a class="anchor-link" href="#Topic-Modeling-using-LDA"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Topic modeling is a type of statistical modeling for discovering the abstract “topics” that occur in a collection of documents. Latent Dirichlet Allocation (LDA) is an example of topic model and is used to classify text in a document to a particular topic. LDA is a generative probabilistic model that assumes each topic is a mixture over an underlying set of words, and each document is a mixture of over a set of topic probabilities.</p>
+<p>Illustration of LDA input/output workflow (Credit: <a href="http://chdoig.github.io/pytexas2015-topic-modeling/#/3/4">http://chdoig.github.io/pytexas2015-topic-modeling/#/3/4</a>)</p>
+<p><img src="/ds-blog/images/copied_from_nb/img/lda-1.png" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Data-Pre-processing">
+<a class="anchor" href="#Data-Pre-processing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Pre-processing<a class="anchor-link" href="#Data-Pre-processing"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will preprocess the review data using gensim library. Few of the actions performed by preprocess_string as follows:</p>
+<ul>
+<li>Tokenization: Split the text into sentences and the sentences into words. Lowercase the words and remove punctuation.</li>
+<li>All stopwords are removed.</li>
+<li>Words are lemmatized: words in third person are changed to first person and verbs in past and future tenses are changed into present. </li>
+<li>Words are stemmed: words are reduced to their root form.</li>
+</ul>
+<p>Please see below the output after pre-processing one of the reviews.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">gensim</span>
+<span class="kn">from</span> <span class="nn">gensim.parsing.preprocessing</span> <span class="kn">import</span> <span class="n">preprocess_string</span>
+
+<span class="c1"># print unprocessed text</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">review</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># print processed text</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">preprocess_string</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">review</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>It's very expensive but the quality you get is osum
+['expens', 'qualiti', 'osum']
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">processed_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'review'</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_string</span><span class="p">)</span>
+<span class="n">processed_data</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0      [neg, review, product, amazon, elat, receiv, i...
+1                                [expens, qualiti, osum]
+2      [iphon, design, good, camera, qualiti, awesom,...
+3      [awesom, phone, nice, upgrad, iphon, iphon, lo...
+4      [phone, produc, heat, didn’t, sim, half, hour,...
+                             ...                        
+995                                                   []
+996                                                   []
+997                                                   []
+998                                              [excel]
+999                                              [excel]
+Name: review, Length: 1000, dtype: object</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Preparign-Document-Term-Matrix">
+<a class="anchor" href="#Preparign-Document-Term-Matrix" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preparign Document-Term-Matrix<a class="anchor-link" href="#Preparign-Document-Term-Matrix"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Gensim requires that tokens be converted to a dictionary. In this instance a dictionary is a mapping between words and their integer IDs. We then create a  Document-Term-Matrix where we use Bag-of-Words approach returning the vector of word and its frequency (number of occurences in the document) for each document.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importing Gensim</span>
+<span class="kn">import</span> <span class="nn">gensim</span>
+<span class="kn">from</span> <span class="nn">gensim</span> <span class="kn">import</span> <span class="n">corpora</span>
+
+<span class="c1"># Creating the term dictionary of our list of documents (corpus), where every unique term is assigned an index. </span>
+<span class="n">dictionary</span> <span class="o">=</span> <span class="n">corpora</span><span class="o">.</span><span class="n">Dictionary</span><span class="p">(</span><span class="n">processed_data</span><span class="p">)</span>
+
+<span class="c1"># Converting list of documents (corpus) into Document Term Matrix using dictionary prepared above.</span>
+<span class="n">doc_term_matrix</span> <span class="o">=</span> <span class="p">[</span><span class="n">dictionary</span><span class="o">.</span><span class="n">doc2bow</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">processed_data</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Running-LDA-Model">
+<a class="anchor" href="#Running-LDA-Model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running LDA Model<a class="anchor-link" href="#Running-LDA-Model"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will now run the LDA Model. The number of topics you give is largely a guess/arbitrary. The model assumes the document contains that many topics. However, finding the number of topics explaining the data is a optimisation problem and can be found by 'Coherence Model'.</p>
+<p>Here, we have used number of topics = 3</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#RUN THE MODEL</span>
+<span class="c1"># Creating the object for LDA model using gensim library</span>
+<span class="n">Lda</span> <span class="o">=</span> <span class="n">gensim</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ldamodel</span><span class="o">.</span><span class="n">LdaModel</span>
+
+<span class="c1"># Running and Trainign LDA model on the document term matrix.</span>
+<span class="n">TOPIC_CNT</span><span class="o">=</span> <span class="mi">3</span>
+<span class="n">ldamodel</span> <span class="o">=</span> <span class="n">Lda</span><span class="p">(</span><span class="n">doc_term_matrix</span><span class="p">,</span> <span class="n">num_topics</span><span class="o">=</span><span class="n">TOPIC_CNT</span><span class="p">,</span> <span class="n">id2word</span> <span class="o">=</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">passes</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can then see the weights of top 20 words in each topic, which can help us to explain the topic.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Results</span>
+<span class="n">topics</span><span class="o">=</span> <span class="n">ldamodel</span><span class="o">.</span><span class="n">print_topics</span><span class="p">(</span><span class="n">num_topics</span><span class="o">=</span><span class="n">TOPIC_CNT</span><span class="p">,</span> <span class="n">num_words</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">topics</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(0,
+  '0.050*"phone" + 0.031*"iphon" + 0.019*"best" + 0.015*"amazon" + 0.015*"nice" + 0.014*"great" + 0.013*"camera" + 0.012*"time" + 0.012*"appl" + 0.010*"charger" + 0.009*"product" + 0.008*"bui" + 0.008*"charg" + 0.007*"qualiti" + 0.007*"us" + 0.006*"good" + 0.006*"deliveri" + 0.006*"perfect" + 0.006*"look" + 0.006*"batteri"'),
+ (1,
+  '0.032*"phone" + 0.026*"awesom" + 0.024*"iphon" + 0.015*"love" + 0.011*"great" + 0.010*"io" + 0.010*"dai" + 0.010*"camera" + 0.009*"android" + 0.008*"displai" + 0.008*"it’" + 0.008*"batteri" + 0.007*"screen" + 0.007*"appl" + 0.007*"review" + 0.006*"pro" + 0.006*"best" + 0.006*"experi" + 0.006*"feel" + 0.006*"word"'),
+ (2,
+  '0.066*"good" + 0.041*"batteri" + 0.036*"camera" + 0.035*"phone" + 0.032*"product" + 0.025*"life" + 0.023*"qualiti" + 0.023*"appl" + 0.018*"iphon" + 0.018*"best" + 0.014*"awesom" + 0.014*"bui" + 0.014*"amaz" + 0.013*"monei" + 0.011*"excel" + 0.011*"valu" + 0.011*"perform" + 0.010*"mobil" + 0.009*"great" + 0.009*"worth"')]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Extracting-Topics">
+<a class="anchor" href="#Extracting-Topics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Extracting Topics<a class="anchor-link" href="#Extracting-Topics"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can identify the follow topics emerging out of reviews of Amazon iPhone 11 64GB:</p>
+<ul>
+<li>Topic #1: There seems to discussion of heat/ charging issue with the product.</li>
+<li>Topic #2: The discussion on iPhone's features such as camera, display, battery.</li>
+<li>Topic #3: iPhone being value for money and discussion on Amazon delivery service.</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">word_dict</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">TOPIC_CNT</span><span class="p">):</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">ldamodel</span><span class="o">.</span><span class="n">show_topic</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">topn</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">word_dict</span><span class="p">[</span><span class="s1">'Topic #'</span> <span class="o">+</span> <span class="s1">'</span><span class="si">{:2d}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">word_dict</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Topic # 1</th>
+      <th>Topic # 2</th>
+      <th>Topic # 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>phone</td>
+      <td>phone</td>
+      <td>good</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>iphon</td>
+      <td>awesom</td>
+      <td>batteri</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>best</td>
+      <td>iphon</td>
+      <td>camera</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>amazon</td>
+      <td>love</td>
+      <td>phone</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>nice</td>
+      <td>great</td>
+      <td>product</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>great</td>
+      <td>io</td>
+      <td>life</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>camera</td>
+      <td>dai</td>
+      <td>qualiti</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>time</td>
+      <td>camera</td>
+      <td>appl</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>appl</td>
+      <td>android</td>
+      <td>iphon</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>charger</td>
+      <td>displai</td>
+      <td>best</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>product</td>
+      <td>it’</td>
+      <td>awesom</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>bui</td>
+      <td>batteri</td>
+      <td>bui</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>charg</td>
+      <td>screen</td>
+      <td>amaz</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>qualiti</td>
+      <td>appl</td>
+      <td>monei</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>us</td>
+      <td>review</td>
+      <td>excel</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>good</td>
+      <td>pro</td>
+      <td>valu</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>deliveri</td>
+      <td>best</td>
+      <td>perform</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>perfect</td>
+      <td>experi</td>
+      <td>mobil</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>look</td>
+      <td>feel</td>
+      <td>great</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>batteri</td>
+      <td>word</td>
+      <td>worth</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The below code provide the % of topic a document is about. This helps to find the dominant topic in each review.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">doc_to_topic</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">doc_term_matrix</span><span class="p">)):</span>
+    <span class="n">top_topics</span> <span class="o">=</span> <span class="n">ldamodel</span><span class="o">.</span><span class="n">get_document_topics</span><span class="p">(</span><span class="n">doc_term_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">minimum_probability</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">topic_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">top_topics</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">TOPIC_CNT</span><span class="p">)]</span>
+    <span class="n">doc_to_topic</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic_vec</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Dataframe of topic</span>
+<span class="n">document_topics</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">doc_to_topic</span><span class="p">)</span>
+<span class="n">document_topics</span> <span class="o">=</span> <span class="n">document_topics</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">document_topics</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">document_topics</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">document_topics</span> <span class="o">=</span> <span class="n">document_topics</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">'Topic #'</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Dataframe of review and topics</span>
+<span class="n">data_new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span><span class="n">document_topics</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">join</span><span class="o">=</span><span class="s1">'inner'</span><span class="p">)</span>
+<span class="n">data_new</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>review</th>
+      <th>Topic #1</th>
+      <th>Topic #2</th>
+      <th>Topic #3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>May be my first negative review about the prod...</td>
+      <td>0.990397</td>
+      <td>0.004789</td>
+      <td>0.004815</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>It's very expensive but the quality you get is...</td>
+      <td>0.084920</td>
+      <td>0.089119</td>
+      <td>0.825960</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>The iPhone design is good and the camera quali...</td>
+      <td>0.989838</td>
+      <td>0.004876</td>
+      <td>0.005286</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Awesome Phone. Nice upgrade from iPhone 6s to ...</td>
+      <td>0.455081</td>
+      <td>0.503810</td>
+      <td>0.041108</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>My Phone is Producing Too Much Heat Even Didn’...</td>
+      <td>0.978437</td>
+      <td>0.010337</td>
+      <td>0.011225</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Endnotes">
+<a class="anchor" href="#Endnotes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Endnotes<a class="anchor-link" href="#Endnotes"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I hope this blog helps in understanding how powerful Topic Modeling is in understanding unstructured textual data.  Feel free to play around with the code by opening in Colab or cloning the repo in github.</p>
+<p>If you have any comments or suggestions please comment below or reach out to me at - <a href="https://twitter.com/rahulsingla0959">Twitter</a> or <a href="https://www.linkedin.com/in/rahul-singla1/">LinkedIn</a></p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="rahuls0959/ds-blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/ds-blog/python/text%20analytics/web%20scraping/topic%20modeling/selenium/gensim/nlp/2020/04/21/Topic_Modeling_Amazon_Reviews_new.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/ds-blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ds-blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ds-blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal website for Analytics Projects</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/rahuls0959" title="rahuls0959"><svg class="svg-icon grey"><use xlink:href="/ds-blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/rahulsingla0959" title="rahulsingla0959"><svg class="svg-icon grey"><use xlink:href="/ds-blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
