@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Recommendation Systems - Demographic Filtering (Part 1) | Home</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Recommendation Systems - Demographic Filtering (Part 1)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of demographic filtering in Python." />
+<meta property="og:description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of demographic filtering in Python." />
+<link rel="canonical" href="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html" />
+<meta property="og:url" content="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html" />
+<meta property="og:site_name" content="Home" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-02T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of demographic filtering in Python.","@type":"BlogPosting","headline":"Recommendation Systems - Demographic Filtering (Part 1)","url":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html","datePublished":"2020-05-02T00:00:00-05:00","dateModified":"2020-05-02T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/ds-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://rahuls0959.github.io/ds-blog/feed.xml" title="Home" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-163975149-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/ds-blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Recommendation Systems - Demographic Filtering (Part 1) | Home</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Recommendation Systems - Demographic Filtering (Part 1)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of demographic filtering in Python." />
+<meta property="og:description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of demographic filtering in Python." />
+<link rel="canonical" href="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html" />
+<meta property="og:url" content="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html" />
+<meta property="og:site_name" content="Home" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-02T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of demographic filtering in Python.","@type":"BlogPosting","headline":"Recommendation Systems - Demographic Filtering (Part 1)","url":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html","datePublished":"2020-05-02T00:00:00-05:00","dateModified":"2020-05-02T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://rahuls0959.github.io/ds-blog/feed.xml" title="Home" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-163975149-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ds-blog/">Home</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/ds-blog/about/">About Me</a><a class="page-link" href="/ds-blog/search/">Search</a><a class="page-link" href="/ds-blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Recommendation Systems - Demographic Filtering (Part 1)</h1><p class="page-description">The three part series on building a beginner&#39;s recommendation system with Python. This blog provides a simple implementation of demographic filtering in Python.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-05-02T00:00:00-05:00" itemprop="datePublished">
+        May 2, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      14 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#python">python</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#recommendation system">recommendation system</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#relevancy">relevancy</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#collaborative filtering">collaborative filtering</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#content-based filtering">content-based filtering</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#demographic filtering">demographic filtering</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/rahuls0959/ds-blog/tree/master/_notebooks/2020-05-03_Recommendation System_Part 1.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/ds-blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/rahuls0959/ds-blog/blob/master/_notebooks/2020-05-03_Recommendation System_Part 1.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/ds-blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Introduction">Introduction </a></li>
+<li class="toc-entry toc-h2"><a href="#Types-of-Recommendation-Systems">Types of Recommendation Systems </a></li>
+<li class="toc-entry toc-h2"><a href="#Data-Preparation">Data Preparation </a></li>
+<li class="toc-entry toc-h2"><a href="#Demographic-Filtering">Demographic Filtering </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Recommendation-based-on-highest-ratings-calculated-using-total-votes">Recommendation based on highest ratings calculated using total votes </a></li>
+<li class="toc-entry toc-h3"><a href="#Recommendation-based-on-maximum-popularity-at-the-moment">Recommendation based on maximum popularity at the moment </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Endnotes">Endnotes </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-05-03_Recommendation System_Part 1.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Introduction">
+<a class="anchor" href="#Introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction<a class="anchor-link" href="#Introduction"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Recommendation systems have become central to most of the popular apps such as Netflix, Spotify, Flipkart, etc. These provide better recommendation to the user based on past search history or keyword searched by the user or similarity of the user to the other users' behavior on the platform. Recommendation systems try to find the relevance of the content or item for the user by proving a scoring mechanism for each user-item pair. The targeted recommendations are used to drive more engagement on the platform which in turn would lead be more retention and revenue opportunity for these apps.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Types-of-Recommendation-Systems">
+<a class="anchor" href="#Types-of-Recommendation-Systems" aria-hidden="true"><span class="octicon octicon-link"></span></a>Types of Recommendation Systems<a class="anchor-link" href="#Types-of-Recommendation-Systems"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Demographic Filtering: This provides the same recommendation to all the audience based on popularity, rating or genre of the item. We can see this type of recommendations in sections such as 'Trending Now', 'Popular on Netflix', etc. This is one of the most simple form of filtering. This assumes that items which are more popular or critically acclaimed will have higher chances of being liked by the general audience.</li>
+</ul>
+<p><img src="/ds-blog/images/copied_from_nb/img/Netflix1.png" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Content Based Filtering: This suggests similar items based on a particular item. This uses the item's similarity with the previously liked or saved items of the user based on item's metadata or current search keywords used by user to find some item. This assumes that a user has higher chances to like similar items based on previous history of the user. Also, this helps in giving relevant recommendations to the user based on searched keywords.</li>
+</ul>
+<p><img src="/ds-blog/images/copied_from_nb/img/Netflix2.PNG" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Collaborating Filtering: This system matches persons with similar interests and provides recommendations based on this matching. Collaborative filters do not require item metadata like in content-based filtering. This kind of recommendations implementation can be seen in Amazon or Flipkart under 'Frequently Bought Together' section.</li>
+</ul>
+<p><img src="/ds-blog/images/copied_from_nb/img/Flipkart1.PNG" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-Preparation">
+<a class="anchor" href="#Data-Preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Preparation<a class="anchor-link" href="#Data-Preparation"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have taken the data of ~5000 English Movies from Kaggle (<a href="https://www.kaggle.com/tmdb/tmdb-movie-metadata">https://www.kaggle.com/tmdb/tmdb-movie-metadata</a>). With this data, we would try to understand each of three types of recommendation systems by developing Machine Learning models in Python.</p>
+<p>The first dataset 'tmdb_5000_credits' contains the following features:</p>
+<ul>
+<li>movie_id - A unique identifier for each movie</li>
+<li>cast - The name of lead and supporting actors</li>
+<li>crew - The name of Director, Editor, Composer, Writer etc.</li>
+</ul>
+<p>The second dataset 'tmdb_5000_movies' has the following features:</p>
+<ul>
+<li>budget - The budget in which the movie was made</li>
+<li>genre - The genre of the movie (Action, Comedy ,Thriller etc.)</li>
+<li>homepage - A link to the homepage of the movie</li>
+<li>id - This is infact the movie_id as in the first dataset</li>
+<li>keywords - The keywords or tags related to the movie</li>
+<li>original_language - The language in which the movie was made</li>
+<li>original_title - The title of the movie before translation or adaptation</li>
+<li>overview - A brief description of the movie</li>
+<li>popularity - A numeric quantity specifying the movie popularity at the moment</li>
+<li>production_companies - The production house of the movie</li>
+<li>production_countries - The country in which it was produced</li>
+<li>release_date - The date on which it was released</li>
+<li>revenue - The worldwide revenue generated by the movie</li>
+<li>runtime - The running time of the movie in minutes</li>
+<li>status - "Released" or "Rumored"</li>
+<li>tagline - Movie's tagline</li>
+<li>title - Title of the movie</li>
+<li>vote_average - average ratings the movie recieved</li>
+<li>vote_count - the count of votes recieved</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">)</span>
+
+<span class="n">df1</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'tmdb-movie-metadata/tmdb_5000_credits.csv'</span><span class="p">)</span>
+<span class="n">df2</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'tmdb-movie-metadata/tmdb_5000_movies.csv'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can now join the two datasets on 'id' column.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df1</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">,</span><span class="s1">'movie_title'</span><span class="p">,</span><span class="s1">'cast'</span><span class="p">,</span><span class="s1">'crew'</span><span class="p">]</span>
+<span class="n">df2</span><span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">'id'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's see how the combined data looks like!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df2</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(4803, 23)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The database contains 4803 movies and 23 features or variables.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df2</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>budget</th>
+      <th>genres</th>
+      <th>homepage</th>
+      <th>id</th>
+      <th>keywords</th>
+      <th>original_language</th>
+      <th>original_title</th>
+      <th>overview</th>
+      <th>popularity</th>
+      <th>production_companies</th>
+      <th>...</th>
+      <th>runtime</th>
+      <th>spoken_languages</th>
+      <th>status</th>
+      <th>tagline</th>
+      <th>title</th>
+      <th>vote_average</th>
+      <th>vote_count</th>
+      <th>movie_title</th>
+      <th>cast</th>
+      <th>crew</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>237000000</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 12, "nam...</td>
+      <td>http://www.avatarmovie.com/</td>
+      <td>19995</td>
+      <td>[{"id": 1463, "name": "culture clash"}, {"id":...</td>
+      <td>en</td>
+      <td>Avatar</td>
+      <td>In the 22nd century, a paraplegic Marine is di...</td>
+      <td>150.437577</td>
+      <td>[{"name": "Ingenious Film Partners", "id": 289...</td>
+      <td>...</td>
+      <td>162.0</td>
+      <td>[{"iso_639_1": "en", "name": "English"}, {"iso...</td>
+      <td>Released</td>
+      <td>Enter the World of Pandora.</td>
+      <td>Avatar</td>
+      <td>7.2</td>
+      <td>11800</td>
+      <td>Avatar</td>
+      <td>[{"cast_id": 242, "character": "Jake Sully", "...</td>
+      <td>[{"credit_id": "52fe48009251416c750aca23", "de...</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>300000000</td>
+      <td>[{"id": 12, "name": "Adventure"}, {"id": 14, "...</td>
+      <td>http://disney.go.com/disneypictures/pirates/</td>
+      <td>285</td>
+      <td>[{"id": 270, "name": "ocean"}, {"id": 726, "na...</td>
+      <td>en</td>
+      <td>Pirates of the Caribbean: At World's End</td>
+      <td>Captain Barbossa, long believed to be dead, ha...</td>
+      <td>139.082615</td>
+      <td>[{"name": "Walt Disney Pictures", "id": 2}, {"...</td>
+      <td>...</td>
+      <td>169.0</td>
+      <td>[{"iso_639_1": "en", "name": "English"}]</td>
+      <td>Released</td>
+      <td>At the end of the world, the adventure begins.</td>
+      <td>Pirates of the Caribbean: At World's End</td>
+      <td>6.9</td>
+      <td>4500</td>
+      <td>Pirates of the Caribbean: At World's End</td>
+      <td>[{"cast_id": 4, "character": "Captain Jack Spa...</td>
+      <td>[{"credit_id": "52fe4232c3a36847f800b579", "de...</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>245000000</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 12, "nam...</td>
+      <td>http://www.sonypictures.com/movies/spectre/</td>
+      <td>206647</td>
+      <td>[{"id": 470, "name": "spy"}, {"id": 818, "name...</td>
+      <td>en</td>
+      <td>Spectre</td>
+      <td>A cryptic message from Bond’s past sends him o...</td>
+      <td>107.376788</td>
+      <td>[{"name": "Columbia Pictures", "id": 5}, {"nam...</td>
+      <td>...</td>
+      <td>148.0</td>
+      <td>[{"iso_639_1": "fr", "name": "Fran\u00e7ais"},...</td>
+      <td>Released</td>
+      <td>A Plan No One Escapes</td>
+      <td>Spectre</td>
+      <td>6.3</td>
+      <td>4466</td>
+      <td>Spectre</td>
+      <td>[{"cast_id": 1, "character": "James Bond", "cr...</td>
+      <td>[{"credit_id": "54805967c3a36829b5002c41", "de...</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>250000000</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 80, "nam...</td>
+      <td>http://www.thedarkknightrises.com/</td>
+      <td>49026</td>
+      <td>[{"id": 849, "name": "dc comics"}, {"id": 853,...</td>
+      <td>en</td>
+      <td>The Dark Knight Rises</td>
+      <td>Following the death of District Attorney Harve...</td>
+      <td>112.312950</td>
+      <td>[{"name": "Legendary Pictures", "id": 923}, {"...</td>
+      <td>...</td>
+      <td>165.0</td>
+      <td>[{"iso_639_1": "en", "name": "English"}]</td>
+      <td>Released</td>
+      <td>The Legend Ends</td>
+      <td>The Dark Knight Rises</td>
+      <td>7.6</td>
+      <td>9106</td>
+      <td>The Dark Knight Rises</td>
+      <td>[{"cast_id": 2, "character": "Bruce Wayne / Ba...</td>
+      <td>[{"credit_id": "52fe4781c3a36847f81398c3", "de...</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>260000000</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 12, "nam...</td>
+      <td>http://movies.disney.com/john-carter</td>
+      <td>49529</td>
+      <td>[{"id": 818, "name": "based on novel"}, {"id":...</td>
+      <td>en</td>
+      <td>John Carter</td>
+      <td>John Carter is a war-weary, former military ca...</td>
+      <td>43.926995</td>
+      <td>[{"name": "Walt Disney Pictures", "id": 2}]</td>
+      <td>...</td>
+      <td>132.0</td>
+      <td>[{"iso_639_1": "en", "name": "English"}]</td>
+      <td>Released</td>
+      <td>Lost in our world, found in another.</td>
+      <td>John Carter</td>
+      <td>6.1</td>
+      <td>2124</td>
+      <td>John Carter</td>
+      <td>[{"cast_id": 5, "character": "John Carter", "c...</td>
+      <td>[{"credit_id": "52fe479ac3a36847f813eaa3", "de...</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 23 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's keep only the most important features from the combined dataset - title, cast, crew, genres, keywords, vote_count, vote_average, popularity</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">'movie_title'</span><span class="p">,</span> <span class="s1">'cast'</span><span class="p">,</span><span class="s1">'crew'</span><span class="p">,</span><span class="s1">'genres'</span><span class="p">,</span><span class="s1">'keywords'</span><span class="p">,</span><span class="s1">'overview'</span><span class="p">,</span><span class="s1">'vote_count'</span><span class="p">,</span><span class="s1">'vote_average'</span><span class="p">,</span><span class="s1">'popularity'</span><span class="p">]]</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movie_title</th>
+      <th>cast</th>
+      <th>crew</th>
+      <th>genres</th>
+      <th>keywords</th>
+      <th>overview</th>
+      <th>vote_count</th>
+      <th>vote_average</th>
+      <th>popularity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>Avatar</td>
+      <td>[{"cast_id": 242, "character": "Jake Sully", "...</td>
+      <td>[{"credit_id": "52fe48009251416c750aca23", "de...</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 12, "nam...</td>
+      <td>[{"id": 1463, "name": "culture clash"}, {"id":...</td>
+      <td>In the 22nd century, a paraplegic Marine is di...</td>
+      <td>11800</td>
+      <td>7.2</td>
+      <td>150.437577</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Pirates of the Caribbean: At World's End</td>
+      <td>[{"cast_id": 4, "character": "Captain Jack Spa...</td>
+      <td>[{"credit_id": "52fe4232c3a36847f800b579", "de...</td>
+      <td>[{"id": 12, "name": "Adventure"}, {"id": 14, "...</td>
+      <td>[{"id": 270, "name": "ocean"}, {"id": 726, "na...</td>
+      <td>Captain Barbossa, long believed to be dead, ha...</td>
+      <td>4500</td>
+      <td>6.9</td>
+      <td>139.082615</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Spectre</td>
+      <td>[{"cast_id": 1, "character": "James Bond", "cr...</td>
+      <td>[{"credit_id": "54805967c3a36829b5002c41", "de...</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 12, "nam...</td>
+      <td>[{"id": 470, "name": "spy"}, {"id": 818, "name...</td>
+      <td>A cryptic message from Bond’s past sends him o...</td>
+      <td>4466</td>
+      <td>6.3</td>
+      <td>107.376788</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>The Dark Knight Rises</td>
+      <td>[{"cast_id": 2, "character": "Bruce Wayne / Ba...</td>
+      <td>[{"credit_id": "52fe4781c3a36847f81398c3", "de...</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 80, "nam...</td>
+      <td>[{"id": 849, "name": "dc comics"}, {"id": 853,...</td>
+      <td>Following the death of District Attorney Harve...</td>
+      <td>9106</td>
+      <td>7.6</td>
+      <td>112.312950</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>John Carter</td>
+      <td>[{"cast_id": 5, "character": "John Carter", "c...</td>
+      <td>[{"credit_id": "52fe479ac3a36847f813eaa3", "de...</td>
+      <td>[{"id": 28, "name": "Action"}, {"id": 12, "nam...</td>
+      <td>[{"id": 818, "name": "based on novel"}, {"id":...</td>
+      <td>John Carter is a war-weary, former military ca...</td>
+      <td>2124</td>
+      <td>6.1</td>
+      <td>43.926995</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As we can see from the above data, cast, crew, genres and keywords are lists of JSON objects: JSON objects are surrounded by curly braces {}. JSON objects are written in key/value pairs. Keys must be strings, and values must be a valid JSON data type (string, number, object, array, boolean or null). Keys and values are separated by a colon. Each key/value pair is separated by a comma.</p>
+<p>We will now extract the values of the first three actor names from the feature 'cast' using key 'name', director from feature 'crew' using key 'job' = Director and key 'name', first three movie genre from feature 'genres' using key 'name' and first three keywords related to movie from feature 'keywords' using key 'name'.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## Extract cast, crew, keywords and genre</span>
+
+<span class="c1"># Parse the stringified features into their corresponding python objects</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
+
+<span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'cast'</span><span class="p">,</span> <span class="s1">'crew'</span><span class="p">,</span> <span class="s1">'keywords'</span><span class="p">,</span> <span class="s1">'genres'</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">literal_eval</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Get the first three names from the cast,keywords and genre features.</span>
+<span class="k">def</span> <span class="nf">get_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="c1">#Check if more than 3 elements exist. If yes, return only first three. If no, return entire list.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">names</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">names</span>
+
+    <span class="c1">#Return empty list in case of missing/malformed data</span>
+    <span class="k">return</span> <span class="p">[]</span>
+
+<span class="c1"># Get the director's name from the crew feature. If director is not listed, return NaN</span>
+<span class="k">def</span> <span class="nf">get_director</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="s1">'job'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Director'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">i</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Define new director, cast, genres and keywords features that are in a suitable form.</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">'director'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'crew'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_director</span><span class="p">)</span>
+
+<span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'cast'</span><span class="p">,</span> <span class="s1">'keywords'</span><span class="p">,</span> <span class="s1">'genres'</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_list</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's look at how the data looks like now.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movie_title</th>
+      <th>cast</th>
+      <th>crew</th>
+      <th>genres</th>
+      <th>keywords</th>
+      <th>overview</th>
+      <th>vote_count</th>
+      <th>vote_average</th>
+      <th>popularity</th>
+      <th>director</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>Avatar</td>
+      <td>[Sam Worthington, Zoe Saldana, Sigourney Weaver]</td>
+      <td>[{'credit_id': '52fe48009251416c750aca23', 'de...</td>
+      <td>[Action, Adventure, Fantasy]</td>
+      <td>[culture clash, future, space war]</td>
+      <td>In the 22nd century, a paraplegic Marine is di...</td>
+      <td>11800</td>
+      <td>7.2</td>
+      <td>150.437577</td>
+      <td>James Cameron</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Pirates of the Caribbean: At World's End</td>
+      <td>[Johnny Depp, Orlando Bloom, Keira Knightley]</td>
+      <td>[{'credit_id': '52fe4232c3a36847f800b579', 'de...</td>
+      <td>[Adventure, Fantasy, Action]</td>
+      <td>[ocean, drug abuse, exotic island]</td>
+      <td>Captain Barbossa, long believed to be dead, ha...</td>
+      <td>4500</td>
+      <td>6.9</td>
+      <td>139.082615</td>
+      <td>Gore Verbinski</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Spectre</td>
+      <td>[Daniel Craig, Christoph Waltz, Léa Seydoux]</td>
+      <td>[{'credit_id': '54805967c3a36829b5002c41', 'de...</td>
+      <td>[Action, Adventure, Crime]</td>
+      <td>[spy, based on novel, secret agent]</td>
+      <td>A cryptic message from Bond’s past sends him o...</td>
+      <td>4466</td>
+      <td>6.3</td>
+      <td>107.376788</td>
+      <td>Sam Mendes</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>The Dark Knight Rises</td>
+      <td>[Christian Bale, Michael Caine, Gary Oldman]</td>
+      <td>[{'credit_id': '52fe4781c3a36847f81398c3', 'de...</td>
+      <td>[Action, Crime, Drama]</td>
+      <td>[dc comics, crime fighter, terrorist]</td>
+      <td>Following the death of District Attorney Harve...</td>
+      <td>9106</td>
+      <td>7.6</td>
+      <td>112.312950</td>
+      <td>Christopher Nolan</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>John Carter</td>
+      <td>[Taylor Kitsch, Lynn Collins, Samantha Morton]</td>
+      <td>[{'credit_id': '52fe479ac3a36847f813eaa3', 'de...</td>
+      <td>[Action, Adventure, Science Fiction]</td>
+      <td>[based on novel, mars, medallion]</td>
+      <td>John Carter is a war-weary, former military ca...</td>
+      <td>2124</td>
+      <td>6.1</td>
+      <td>43.926995</td>
+      <td>Andrew Stanton</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Let's store this in a CSV for further use</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'movies_database.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Demographic-Filtering">
+<a class="anchor" href="#Demographic-Filtering" aria-hidden="true"><span class="octicon octicon-link"></span></a>Demographic Filtering<a class="anchor-link" href="#Demographic-Filtering"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's start with demographic filtering. We would need a metric to score the items and rank them accordingly. Every platform or app has their own way of evaluating this metric. Platforms can take the reliable data sources to pull out the information on items (such as ratings, votes etc.), calculate the score for each item, rank them in descending order and show the top items to the users.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Recommendation-based-on-highest-ratings-calculated-using-total-votes">
+<a class="anchor" href="#Recommendation-based-on-highest-ratings-calculated-using-total-votes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Recommendation based on highest ratings calculated using total votes<a class="anchor-link" href="#Recommendation-based-on-highest-ratings-calculated-using-total-votes"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For the above movie database, we can use the average rating provided by the voters to rank, however this has a major flaw in terms of skewness due to movies with very low number of votes. For example, movie with 8.5 rating with only 3 votes may not be better than movie with 7.8 rating with 100 votes.</p>
+<p>In order to go around this, I have taken the weighted rating approach followed by IMDB to rate the movies in this tutorial.</p>
+<p><img src="/ds-blog/images/copied_from_nb/img/imdb.png" alt=""></p>
+<p>where,</p>
+<ul>
+<li>v is the number of votes for the movie;</li>
+<li>m is the minimum votes required to be listed in the chart;</li>
+<li>R is the average rating of the movie; And</li>
+<li>C is the mean vote across the whole report</li>
+</ul>
+<p>We already have values of v(vote_count) and R(vote_average). C can be calculated from the data.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's calculate the mean rating across the whole database of 4803 movies.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">C</span><span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'vote_average'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">C</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>6.092171559442011</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>So, the mean rating for all the movies is approx 6 on a scale of 10.</p>
+<p>The next step is to determine an appropriate value for m, the minimum votes required to be listed in the chart. Let's assume the cutoff is 70th percentile. In other words, for a movie to feature in the charts, it must have more votes than at least 70% of the movies in the list.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">m</span><span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'vote_count'</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">m</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>581.0</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Hence, for a movie to feature, it must have minimum  of 581 votes.</p>
+<p>Let's filter out the movies with this criteria. We can then calculate the weighted rating for the qualified movies using the formula mentioned above</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">q_movies</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">'vote_count'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">m</span><span class="p">]</span>
+<span class="n">q_movies</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(1442, 10)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We see that there are 1442 movies which qualify to be in this list.</p>
+<p>Now, we need to calculate our metric for each qualified movie. To do this, we will define a function, weighted_rating() and define a new feature score, of which we'll calculate the value by applying this function to our DataFrame of qualified movies;</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">weighted_rating</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">):</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">'vote_count'</span><span class="p">]</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">'vote_average'</span><span class="p">]</span>
+    <span class="c1"># Calculation based on the IMDB formula</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">v</span><span class="o">/</span><span class="p">(</span><span class="n">v</span><span class="o">+</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">R</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">m</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="n">C</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Define a new feature 'score' and calculate its value with `weighted_rating()`</span>
+<span class="n">q_movies</span><span class="p">[</span><span class="s1">'score'</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_movies</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">weighted_rating</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's look at the top 10 highest rated movies!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Sort movies based on score calculated above</span>
+<span class="n">q_movies</span> <span class="o">=</span> <span class="n">q_movies</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'score'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1">#Print the top 10 movies</span>
+<span class="n">q_movies</span><span class="p">[[</span><span class="s1">'movie_title'</span><span class="p">,</span> <span class="s1">'vote_count'</span><span class="p">,</span> <span class="s1">'vote_average'</span><span class="p">,</span> <span class="s1">'score'</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movie_title</th>
+      <th>vote_count</th>
+      <th>vote_average</th>
+      <th>score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1881</td>
+      <td>The Shawshank Redemption</td>
+      <td>8205</td>
+      <td>8.5</td>
+      <td>8.340775</td>
+    </tr>
+    <tr>
+      <td>3337</td>
+      <td>The Godfather</td>
+      <td>5893</td>
+      <td>8.4</td>
+      <td>8.192887</td>
+    </tr>
+    <tr>
+      <td>662</td>
+      <td>Fight Club</td>
+      <td>9413</td>
+      <td>8.3</td>
+      <td>8.171648</td>
+    </tr>
+    <tr>
+      <td>3232</td>
+      <td>Pulp Fiction</td>
+      <td>8428</td>
+      <td>8.3</td>
+      <td>8.157615</td>
+    </tr>
+    <tr>
+      <td>65</td>
+      <td>The Dark Knight</td>
+      <td>12002</td>
+      <td>8.2</td>
+      <td>8.102674</td>
+    </tr>
+    <tr>
+      <td>809</td>
+      <td>Forrest Gump</td>
+      <td>7927</td>
+      <td>8.2</td>
+      <td>8.056059</td>
+    </tr>
+    <tr>
+      <td>1818</td>
+      <td>Schindler's List</td>
+      <td>4329</td>
+      <td>8.3</td>
+      <td>8.038748</td>
+    </tr>
+    <tr>
+      <td>3865</td>
+      <td>Whiplash</td>
+      <td>4254</td>
+      <td>8.3</td>
+      <td>8.034695</td>
+    </tr>
+    <tr>
+      <td>96</td>
+      <td>Inception</td>
+      <td>13752</td>
+      <td>8.1</td>
+      <td>8.018611</td>
+    </tr>
+    <tr>
+      <td>1990</td>
+      <td>The Empire Strikes Back</td>
+      <td>5879</td>
+      <td>8.2</td>
+      <td>8.010426</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Let's create the plot of top 10 movies based on weighted score</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">q_movies</span><span class="p">[</span><span class="s1">'movie_title'</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="n">q_movies</span><span class="p">[</span><span class="s1">'score'</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">'skyblue'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Weighted Score"</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Best Rated Movies"</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Text(0.5, 1.0, 'Best Rated Movies')</pre>
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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%0A">
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see the classics such as 'The GodFather', 'The Shawshank Redemption', etc. in the above list. These are the best movies of all times and our recommendation system might work in case we want to show the greatest hits of all time based on votes.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Recommendation-based-on-maximum-popularity-at-the-moment">
+<a class="anchor" href="#Recommendation-based-on-maximum-popularity-at-the-moment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Recommendation based on maximum popularity at the moment<a class="anchor-link" href="#Recommendation-based-on-maximum-popularity-at-the-moment"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In case we want to show the movies currently popular among the app users, we would need the popularity score for each movie, rank them in descending order and show the movies with highest popularity score to the users.</p>
+<p>For the above movies database, popularity score has been already calculated and available in the feature 'popularity'. Each app build their popularity ratings differently. In the data provided, it has been built using the following information:</p>
+<ul>
+<li>Number of votes for the day</li>
+<li>Number of views for the day</li>
+<li>Number of users who marked it as a "favourite" for the day</li>
+<li>Number of users who added it to their "watchlist" for the day</li>
+<li>Release date</li>
+<li>Number of total votes</li>
+<li>Previous days score</li>
+</ul>
+<p>Details in the link - <a href="https://developers.themoviedb.org/3/getting-started/popularity">https://developers.themoviedb.org/3/getting-started/popularity</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's look at the top 10 movies based on popularity!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pop</span><span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'popularity'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="s1">'movie_title'</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="n">pop</span><span class="p">[</span><span class="s1">'popularity'</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">'skyblue'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Popularity Score"</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Most Popular Movies"</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Text(0.5, 1.0, 'Most Popular Movies')</pre>
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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%0A">
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The above lists has classics as well as movies popular among the masses. The above recommendations logics can be experimented and the best recommendation engine based on superior performance (eg. one with highest engagement of app users) can be deployed.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Endnotes">
+<a class="anchor" href="#Endnotes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Endnotes<a class="anchor-link" href="#Endnotes"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I hope this has helped in developing a basic understanding of what recommendation systems are, how they work, some of the different types and implementation of demographic filtering using the dummy dataset of ~5000 English Movies. Feel free to play around with the code by opening in Colab or cloning the repo in github.</p>
+<p>In the next two blogs, I will work on other two types of recommendation systems - Content-based Filtering and Collaborative Filtering.</p>
+<p>If you have any comments or suggestions please comment below or reach out to me at - <a href="https://twitter.com/rahulsingla0959">Twitter</a> or <a href="https://www.linkedin.com/in/rahul-singla1/">LinkedIn</a></p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="rahuls0959/ds-blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/02/_Recommendation-System_Part-1.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/ds-blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ds-blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ds-blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal website for Analytics Projects</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/rahuls0959" title="rahuls0959"><svg class="svg-icon grey"><use xlink:href="/ds-blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/rahulsingla0959" title="rahulsingla0959"><svg class="svg-icon grey"><use xlink:href="/ds-blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
