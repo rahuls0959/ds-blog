@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Recommendation Systems - KNN Item-Based Collaborating Filtering (Part 3) | Home</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Recommendation Systems - KNN Item-Based Collaborating Filtering (Part 3)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of collaborating filtering in Python." />
+<meta property="og:description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of collaborating filtering in Python." />
+<link rel="canonical" href="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html" />
+<meta property="og:url" content="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html" />
+<meta property="og:site_name" content="Home" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-03T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of collaborating filtering in Python.","@type":"BlogPosting","headline":"Recommendation Systems - KNN Item-Based Collaborating Filtering (Part 3)","url":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html","datePublished":"2020-05-03T00:00:00-05:00","dateModified":"2020-05-03T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/ds-blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://rahuls0959.github.io/ds-blog/feed.xml" title="Home" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-163975149-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/ds-blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Recommendation Systems - KNN Item-Based Collaborating Filtering (Part 3) | Home</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Recommendation Systems - KNN Item-Based Collaborating Filtering (Part 3)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of collaborating filtering in Python." />
+<meta property="og:description" content="The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of collaborating filtering in Python." />
+<link rel="canonical" href="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html" />
+<meta property="og:url" content="https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html" />
+<meta property="og:site_name" content="Home" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-03T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"The three part series on building a beginner’s recommendation system with Python. This blog provides a simple implementation of collaborating filtering in Python.","@type":"BlogPosting","headline":"Recommendation Systems - KNN Item-Based Collaborating Filtering (Part 3)","url":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html","datePublished":"2020-05-03T00:00:00-05:00","dateModified":"2020-05-03T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rahuls0959.github.io/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://rahuls0959.github.io/ds-blog/feed.xml" title="Home" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-163975149-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ds-blog/">Home</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/ds-blog/about/">About Me</a><a class="page-link" href="/ds-blog/search/">Search</a><a class="page-link" href="/ds-blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Recommendation Systems - KNN Item-Based Collaborating Filtering (Part 3)</h1><p class="page-description">The three part series on building a beginner&#39;s recommendation system with Python. This blog provides a simple implementation of collaborating filtering in Python.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-05-03T00:00:00-05:00" itemprop="datePublished">
+        May 3, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      13 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#python">python</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#recommendation system">recommendation system</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#relevancy">relevancy</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#collaborative filtering">collaborative filtering</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#content-based filtering">content-based filtering</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/ds-blog/categories/#demographic filtering">demographic filtering</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/rahuls0959/ds-blog/tree/master/_notebooks/2020-05-04_Recommendation System_Part 3.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/ds-blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/rahuls0959/ds-blog/blob/master/_notebooks/2020-05-04_Recommendation System_Part 3.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/ds-blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Collaborating-filtering">Collaborating filtering </a></li>
+<li class="toc-entry toc-h2"><a href="#Item-Based-vs-User-Based-Collaborative-Filtering">Item-Based vs User-Based Collaborative Filtering </a></li>
+<li class="toc-entry toc-h2"><a href="#KNN-Model">KNN Model </a></li>
+<li class="toc-entry toc-h2"><a href="#Data-Pre-Processing">Data Pre-Processing </a></li>
+<li class="toc-entry toc-h2"><a href="#KNN-Modeling">KNN Modeling </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Reshaping-the-Data">Reshaping the Data </a></li>
+<li class="toc-entry toc-h3"><a href="#Fitting-the-Model">Fitting the Model </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Endnotes">Endnotes </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-05-04_Recommendation System_Part 3.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Collaborating-filtering">
+<a class="anchor" href="#Collaborating-filtering" aria-hidden="true"><span class="octicon octicon-link"></span></a>Collaborating filtering<a class="anchor-link" href="#Collaborating-filtering"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Collaborative filtering approach builds a model from a user’s past behaviors (items previously purchased or selected and/or numerical ratings given to those items) as well as similar decisions made by other users. This model is then used to predict items (or ratings for items) that the user may have an interest in.</p>
+<p><img src="/ds-blog/images/copied_from_nb/img/collaborative-filtering.png" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Item-Based-vs-User-Based-Collaborative-Filtering">
+<a class="anchor" href="#Item-Based-vs-User-Based-Collaborative-Filtering" aria-hidden="true"><span class="octicon octicon-link"></span></a>Item-Based vs User-Based Collaborative Filtering<a class="anchor-link" href="#Item-Based-vs-User-Based-Collaborative-Filtering"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>User based collaborating filtering uses the patterns of users similar to me to recommend a product (users like me also looked at these other items).</p>
+<p>Item based collaborative filtering uses the patterns of users who browsed the same item as me to recommend me a product (users who looked at my item also looked at these other items).</p>
+<p>Item-based approach is usually prefered than user-based approach. User-based approach is often harder to scale because of the dynamic nature of users, whereas items usually don't change much, so item-based approach often can be computed offline.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="KNN-Model">
+<a class="anchor" href="#KNN-Model" aria-hidden="true"><span class="octicon octicon-link"></span></a>KNN Model<a class="anchor-link" href="#KNN-Model"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Collaborative Filtering models are developed using machine learning algorithms to predict a user’s rating of unrated items. There are several techniques for modeling such as K-Nearest Neighbors (KNN), Matrix Factorization, Deep Learning Models, etc. In this blog, we will be using KNN model.</p>
+<p>The k-nearest neighbors (KNN) algorithm doesn’t make any assumptions on the underlying data distribution, but it relies on item feature similarity. When a KNN makes a prediction about an item (say, movie), it will calculate the 'distance' between the target movie and every other movie in its database. It then ranks its distances and returns the top 'k' nearest neighbor movies (smallest distance measure) as the most similar movie recommendations.</p>
+<p>KNN is widely used algorithm in classification models where an item is classified to one of the classes based on majority class in the k-nearest neighbour items. We have to parametrize the value of 'k' in the model. With increasing 'k', the accuracy first increases (due to over-fitting at lower 'k' values) and then decreases at large values of 'k'. The optimum values of 'k' usually lies between 3-10. (Reference - <a href="https://machinelearningmastery.com/k-nearest-neighbors-for-machine-learning/">https://machinelearningmastery.com/k-nearest-neighbors-for-machine-learning/</a>)</p>
+<p>In this blog, we will be developing an item-based KNN collaborating filtering model.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-Pre-Processing">
+<a class="anchor" href="#Data-Pre-Processing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Pre-Processing<a class="anchor-link" href="#Data-Pre-Processing"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have taken the data of Movies from Kaggle - <a href="https://www.kaggle.com/grouplens/movielens-latest-small">https://www.kaggle.com/grouplens/movielens-latest-small</a> which contains over 20 Mn+ ratings of movies by users. Let's explore the dataset.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">)</span>
+
+<span class="n">df1</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'movielens-20m-dataset/movie.csv'</span><span class="p">)</span>
+<span class="n">df2</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'movielens-20m-dataset/rating.csv'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The 'movie' file contains movie id, title of the movie and genres. Let's see first few rows of the dataset.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df1</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movieId</th>
+      <th>title</th>
+      <th>genres</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>Toy Story (1995)</td>
+      <td>Adventure|Animation|Children|Comedy|Fantasy</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3</td>
+      <td>Grumpier Old Men (1995)</td>
+      <td>Comedy|Romance</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>4</td>
+      <td>Waiting to Exhale (1995)</td>
+      <td>Comedy|Drama|Romance</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>5</td>
+      <td>Father of the Bride Part II (1995)</td>
+      <td>Comedy</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The 'rating' file contains ratings given by users to the movies. Let's see first few rows of the dataset.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df2</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>userId</th>
+      <th>movieId</th>
+      <th>rating</th>
+      <th>timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:53:47</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>1</td>
+      <td>29</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:31:16</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1</td>
+      <td>32</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:33:39</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>1</td>
+      <td>47</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:32:07</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1</td>
+      <td>50</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:29:40</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's combine these two files on movieId column!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">'movieId'</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>userId</th>
+      <th>movieId</th>
+      <th>rating</th>
+      <th>timestamp</th>
+      <th>title</th>
+      <th>genres</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:53:47</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>5</td>
+      <td>2</td>
+      <td>3.0</td>
+      <td>1996-12-25 15:26:09</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>13</td>
+      <td>2</td>
+      <td>3.0</td>
+      <td>1996-11-27 08:19:02</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>29</td>
+      <td>2</td>
+      <td>3.0</td>
+      <td>1996-06-23 20:36:14</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>34</td>
+      <td>2</td>
+      <td>3.0</td>
+      <td>1996-10-28 13:29:44</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's group the movies and find the total rating count for each movie. This will help in understanding the distribution of rating across movies.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df3</span> <span class="o">=</span> <span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">'movieId'</span><span class="p">])[</span><span class="s1">'rating'</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">'rating'</span><span class="p">:</span><span class="s1">'totalRatingCount_movies'</span><span class="p">})</span>
+       <span class="p">[[</span><span class="s1">'movieId'</span><span class="p">,</span><span class="s1">'totalRatingCount_movies'</span><span class="p">]])</span>
+<span class="n">df3</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movieId</th>
+      <th>totalRatingCount_movies</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>26739</td>
+      <td>131254</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>26740</td>
+      <td>131256</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>26741</td>
+      <td>131258</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>26742</td>
+      <td>131260</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>26743</td>
+      <td>131262</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see that there are lot of movies with only single rating also. In order for statistical significance, we should take the movies only with some minimum threshold of ratings. Let's check the statistical measures of the totalRatingCount field.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df3</span><span class="p">[</span><span class="s1">'totalRatingCount_movies'</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>count    26744.000000
+mean       747.841123
+std       3085.818268
+min          1.000000
+25%          3.000000
+50%         18.000000
+75%        205.000000
+max      67310.000000
+Name: totalRatingCount_movies, dtype: float64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>About 25% of the movies received 205 or more ratings. Because we have so many movies in our data, we will limit it to the top 25% for statistical significance, and this will give us ~6700 movies from total 26744 unique movies. Also, intuitively, the recommendations should be of the popular movies with some threshold of reviews.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df4</span> <span class="o">=</span> <span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">'userId'</span><span class="p">])[</span><span class="s1">'rating'</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">'rating'</span><span class="p">:</span><span class="s1">'totalRatingCount_users'</span><span class="p">})</span>
+       <span class="p">[[</span><span class="s1">'userId'</span><span class="p">,</span><span class="s1">'totalRatingCount_users'</span><span class="p">]])</span>
+<span class="n">df4</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>userId</th>
+      <th>totalRatingCount_users</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>138488</td>
+      <td>138489</td>
+      <td>38</td>
+    </tr>
+    <tr>
+      <td>138489</td>
+      <td>138490</td>
+      <td>151</td>
+    </tr>
+    <tr>
+      <td>138490</td>
+      <td>138491</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>138491</td>
+      <td>138492</td>
+      <td>82</td>
+    </tr>
+    <tr>
+      <td>138492</td>
+      <td>138493</td>
+      <td>373</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df4</span><span class="p">[</span><span class="s1">'totalRatingCount_users'</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>count    138493.000000
+mean        144.413530
+std         230.267257
+min          20.000000
+25%          35.000000
+50%          68.000000
+75%         155.000000
+max        9254.000000
+Name: totalRatingCount_users, dtype: float64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>About 25% of the users gave less than 35 movie ratings. Because we have so many users in our data, we will limit it to the top users with total movie ratings greater than or equal to 50 for statistical significance, and this will give us nearly 80,000 users from total 1,38,493 users. Also, intuitively, it would be better to consider only movie reviews from avid watchers.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's add the totalRatingCount_movies and totalRatingCount_users to our combined data!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Let's combine data with totalRatingCount</span>
+<span class="n">data1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df3</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">'movieId'</span><span class="p">)</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">data1</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df4</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">'userId'</span><span class="p">)</span>
+<span class="n">data2</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>userId</th>
+      <th>movieId</th>
+      <th>rating</th>
+      <th>timestamp</th>
+      <th>title</th>
+      <th>genres</th>
+      <th>totalRatingCount_movies</th>
+      <th>totalRatingCount_users</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:53:47</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+      <td>22243</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>1</td>
+      <td>29</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:31:16</td>
+      <td>City of Lost Children, The (Cité des enfants p...</td>
+      <td>Adventure|Drama|Fantasy|Mystery|Sci-Fi</td>
+      <td>8520</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1</td>
+      <td>32</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:33:39</td>
+      <td>Twelve Monkeys (a.k.a. 12 Monkeys) (1995)</td>
+      <td>Mystery|Sci-Fi|Thriller</td>
+      <td>44980</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>1</td>
+      <td>47</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:32:07</td>
+      <td>Seven (a.k.a. Se7en) (1995)</td>
+      <td>Mystery|Thriller</td>
+      <td>43249</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1</td>
+      <td>50</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:29:40</td>
+      <td>Usual Suspects, The (1995)</td>
+      <td>Crime|Mystery|Thriller</td>
+      <td>47006</td>
+      <td>175</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's keep only the movies with totalRatingCount_movies and total_ratingCount_users greather than the chosen threshold and store in popular movies dataframe!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Let's keep only the movies with totalRatingCount &gt;=205</span>
+<span class="n">popular_movies1</span> <span class="o">=</span> <span class="n">data2</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">'totalRatingCount_movies &gt;= 205'</span><span class="p">)</span>
+<span class="n">popular_movies</span> <span class="o">=</span> <span class="n">popular_movies1</span><span class="o">.</span><span class="n">query</span> <span class="p">(</span><span class="s1">'totalRatingCount_users &gt;= 50'</span><span class="p">)</span>
+<span class="n">popular_movies</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>userId</th>
+      <th>movieId</th>
+      <th>rating</th>
+      <th>timestamp</th>
+      <th>title</th>
+      <th>genres</th>
+      <th>totalRatingCount_movies</th>
+      <th>totalRatingCount_users</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:53:47</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+      <td>22243</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>1</td>
+      <td>29</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:31:16</td>
+      <td>City of Lost Children, The (Cité des enfants p...</td>
+      <td>Adventure|Drama|Fantasy|Mystery|Sci-Fi</td>
+      <td>8520</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1</td>
+      <td>32</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:33:39</td>
+      <td>Twelve Monkeys (a.k.a. 12 Monkeys) (1995)</td>
+      <td>Mystery|Sci-Fi|Thriller</td>
+      <td>44980</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>1</td>
+      <td>47</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:32:07</td>
+      <td>Seven (a.k.a. Se7en) (1995)</td>
+      <td>Mystery|Thriller</td>
+      <td>43249</td>
+      <td>175</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1</td>
+      <td>50</td>
+      <td>3.5</td>
+      <td>2005-04-02 23:29:40</td>
+      <td>Usual Suspects, The (1995)</td>
+      <td>Crime|Mystery|Thriller</td>
+      <td>47006</td>
+      <td>175</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="KNN-Modeling">
+<a class="anchor" href="#KNN-Modeling" aria-hidden="true"><span class="octicon octicon-link"></span></a>KNN Modeling<a class="anchor-link" href="#KNN-Modeling"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Reshaping-the-Data">
+<a class="anchor" href="#Reshaping-the-Data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reshaping the Data<a class="anchor-link" href="#Reshaping-the-Data"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For K-Nearest Neighbors, we want the data to be in an array, where each row is a movie and each column is a different user. To reshape the dataframe, we'll pivot the dataframe to the wide format with movies as rows and users as columns. Then we'll fill the missing observations with 0s since we're going to be performing linear algebra operations (calculating distances between vectors). Finally, we transform the values of the dataframe into a scipy sparse matrix for more efficient calculations.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's create a pivot of the data with movie ids as rows and user ids as columns!</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#pivot ratings into movie features</span>
+<span class="n">movie_user_rating_pivot</span> <span class="o">=</span> <span class="n">popular_movies</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
+    <span class="n">index</span><span class="o">=</span><span class="s1">'movieId'</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="s1">'userId'</span><span class="p">,</span>
+    <span class="n">values</span><span class="o">=</span><span class="s1">'rating'</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># create mapper from movie title to index</span>
+<span class="n">movie_to_idx</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">movie</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">movie</span> <span class="ow">in</span> 
+    <span class="nb">enumerate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">df1</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'movieId'</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">movie_user_rating_pivot</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movie_user_rating_pivot</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>userId</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>5</th>
+      <th>7</th>
+      <th>8</th>
+      <th>11</th>
+      <th>13</th>
+      <th>14</th>
+      <th>16</th>
+      <th>...</th>
+      <th>138474</th>
+      <th>138475</th>
+      <th>138477</th>
+      <th>138483</th>
+      <th>138484</th>
+      <th>138486</th>
+      <th>138487</th>
+      <th>138490</th>
+      <th>138492</th>
+      <th>138493</th>
+    </tr>
+    <tr>
+      <th>movieId</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>4.5</td>
+      <td>4.0</td>
+      <td>4.5</td>
+      <td>3.0</td>
+      <td>...</td>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.5</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>3.5</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <td>116797</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>116823</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>117176</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>118696</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>119141</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>6690 rows × 85307 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Thus our data contains movie ratings of 6690 movies by 85307 users.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see that there are lot of fields with rating as '0'. This means that users have not provided ratings for that movie. It makes sense since there will be large number of ratings for most popular movies and few ratings for less popular or recently released movies.</p>
+<p>However, working with sparse matrices causes space and time complexity. The solution to representing and working with sparse matrices is to use an alternate data structure to represent the sparse data. The zero values can be ignored and only the data or non-zero values in the sparse matrix need to be stored or acted upon. More on this in the link - <a href="https://machinelearningmastery.com/sparse-matrices-for-machine-learning/">https://machinelearningmastery.com/sparse-matrices-for-machine-learning/</a></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span>
+
+<span class="c1"># convert dataframe of movie features to scipy sparse matrix</span>
+<span class="n">movie_user_rating_matrix</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">(</span><span class="n">movie_user_rating_pivot</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Fitting-the-Model">
+<a class="anchor" href="#Fitting-the-Model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fitting the Model<a class="anchor-link" href="#Fitting-the-Model"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Time to implement the model. We'll initialize the NearestNeighbors class as model_knn and fit our sparse matrix (movie_user_rating_matrix) to the instance. By specifying the metric = cosine, the model will measure similarity between movie vectors by using cosine similarity (We have explained cosine similarity in details in part 2 of this blog on content-based filtering).</p>
+<p>More on nearest neighbours algorithm can be found on the link - <a href="https://scikit-learn.org/stable/modules/neighbors.html">https://scikit-learn.org/stable/modules/neighbors.html</a></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># import libraries</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">NearestNeighbors</span>
+<span class="c1"># define model</span>
+<span class="n">model_knn</span> <span class="o">=</span> <span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s1">'cosine'</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">'brute'</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># fit</span>
+<span class="n">model_knn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">movie_user_rating_matrix</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>NearestNeighbors(algorithm='brute', leaf_size=30, metric='cosine',
+                 metric_params=None, n_jobs=-1, n_neighbors=20, p=2,
+                 radius=1.0)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">fuzzywuzzy</span> <span class="kn">import</span> <span class="n">fuzz</span>
+
+<span class="k">def</span> <span class="nf">fuzzy_matching</span><span class="p">(</span><span class="n">mapper</span><span class="p">,</span> <span class="n">fav_movie</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    return the closest match via fuzzy ratio. If no match found, return None</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------    </span>
+<span class="sd">    mapper: dict, map movie title name to index of the movie in data</span>
+<span class="sd">    fav_movie: str, name of user input movie</span>
+<span class="sd">    verbose: bool, print log if True</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    index of the closest match</span>
+<span class="sd">    """</span>
+    <span class="n">match_tuple</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># get match</span>
+    <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">mapper</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fuzz</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">fav_movie</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;=</span> <span class="mi">60</span><span class="p">:</span>
+            <span class="n">match_tuple</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">title</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">ratio</span><span class="p">))</span>
+    <span class="c1"># sort</span>
+    <span class="n">match_tuple</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">match_tuple</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match_tuple</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Oops! No match is found'</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Found possible matches in our database: </span><span class="si">{0}</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">match_tuple</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">match_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">make_recommendation</span><span class="p">(</span><span class="n">model_knn</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mapper</span><span class="p">,</span> <span class="n">fav_movie</span><span class="p">,</span> <span class="n">n_recommendations</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    return top n similar movie recommendations based on user's input movie</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_knn: sklearn model, knn model</span>
+<span class="sd">    data: movie-user matrix</span>
+<span class="sd">    mapper: dict, map movie title name to index of the movie in data</span>
+<span class="sd">    fav_movie: str, name of user input movie</span>
+<span class="sd">    n_recommendations: int, top n recommendations</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    list of top n similar movie recommendations</span>
+<span class="sd">    """</span>
+    <span class="c1"># fit</span>
+    <span class="n">model_knn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># get input movie index</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'You have input movie:'</span><span class="p">,</span> <span class="n">fav_movie</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">fuzzy_matching</span><span class="p">(</span><span class="n">mapper</span><span class="p">,</span> <span class="n">fav_movie</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># inference</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Recommendation system start to make inference'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'......</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">distances</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">model_knn</span><span class="o">.</span><span class="n">kneighbors</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="n">n_recommendations</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># get list of raw idx of recommendations</span>
+    <span class="n">raw_recommends</span> <span class="o">=</span> \
+        <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">distances</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># get reverse mapper</span>
+    <span class="n">reverse_mapper</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mapper</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="c1"># print recommendations</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Recommendations for </span><span class="si">{}</span><span class="s1">:'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fav_movie</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">raw_recommends</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="si">{0}</span><span class="s1">: </span><span class="si">{1}</span><span class="s1">, with distance of </span><span class="si">{2}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">reverse_mapper</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">dist</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">my_favorite</span> <span class="o">=</span> <span class="s1">'The Dark Knight Rises'</span>
+
+<span class="n">make_recommendation</span><span class="p">(</span>
+    <span class="n">model_knn</span><span class="o">=</span><span class="n">model_knn</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">movie_user_rating_matrix</span><span class="p">,</span>
+    <span class="n">fav_movie</span><span class="o">=</span><span class="n">my_favorite</span><span class="p">,</span>
+    <span class="n">mapper</span><span class="o">=</span><span class="n">movie_to_idx</span><span class="p">,</span>
+    <span class="n">n_recommendations</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>You have input movie: The Dark Knight Rises
+Found possible matches in our database: ['Dark Knight Rises, The (2012)']
+
+Recommendation system start to make inference
+......
+
+Recommendations for The Dark Knight Rises:
+1: Sherlock Holmes: A Game of Shadows (2011), with distance of 0.5127881899481235
+2: Amazing Spider-Man, The (2012), with distance of 0.49290540194859955
+3: Hunger Games, The (2012), with distance of 0.4854909300858494
+4: Hobbit: An Unexpected Journey, The (2012), with distance of 0.47720058748608674
+5: Looper (2012), with distance of 0.47505264255188184
+6: X-Men: First Class (2011), with distance of 0.4742094475174321
+7: Inception (2010), with distance of 0.46427478653960397
+8: Skyfall (2012), with distance of 0.44506859529221166
+9: Django Unchained (2012), with distance of 0.43321771381173113
+10: Avengers, The (2012), with distance of 0.3402240240654465
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is interesting that KNN model recommends movies produced in very similar years. Also, we can see that cosine similarity is small. This is due to that our data has lot of zero values and has high sparsity, hence the distances starts to fall apart.</p>
+<p>Please note that the movies usually predicted as recommendations are the ones that have the highest volume of ratings. That means that our network is being greatly influenced by heavily rated movies. In such a situation, a movie might be the best recommendation for ‘The Dark Knight Rises’ but could be overlooked by our model due to fewer ratings provided by users for said movie.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Endnotes">
+<a class="anchor" href="#Endnotes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Endnotes<a class="anchor-link" href="#Endnotes"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I hope this has helped in basic understanding of implementing collaborating filtering in Python. Feel free to play around with the code by opening in Colab or cloning the repo in github.</p>
+<p>However, the model has quite a number of limitations such as in case the items don't have enough number of ratings or interactions or new users don't have enough interaction on the platform, the recommendations given by CF would be quite poor. Hence, it is rare that new movies would be recommendated by the model since they would have very few ratings. Most of the recommendation systems are hybrid of different filtering techniques such as content-based and collaborative filtering to address some of these concerns.Also, with increasing base of users and movies, the KNN model would face scalability issues. There are other techniques to solve these issues.</p>
+<p>If you have any comments or suggestions please comment below or reach out to me at - <a href="https://twitter.com/rahulsingla0959">Twitter</a> or <a href="https://www.linkedin.com/in/rahul-singla1/">LinkedIn</a></p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="rahuls0959/ds-blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/ds-blog/python/recommendation%20system/relevancy/collaborative%20filtering/content-based%20filtering/demographic%20filtering/2020/05/03/_Recommendation-System_Part-3.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/ds-blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ds-blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ds-blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal website for Analytics Projects</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/rahuls0959" title="rahuls0959"><svg class="svg-icon grey"><use xlink:href="/ds-blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/rahulsingla0959" title="rahulsingla0959"><svg class="svg-icon grey"><use xlink:href="/ds-blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
