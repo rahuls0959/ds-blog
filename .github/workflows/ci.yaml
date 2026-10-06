@@ -8,6 +8,8 @@ on:
 
 jobs:     
   build-site:
+  permissions:
+      contents: write
     if: ( github.event.commits[0].message != 'Initial commit' ) || github.run_number > 1
     runs-on: ubuntu-latest
     steps:
@@ -41,5 +43,6 @@ jobs:
       if: github.event_name	== 'push'
       uses: peaceiris/actions-gh-pages@v3
       with:
-        deploy_key: ${{ secrets.SSH_DEPLOY_KEY }}
+        #deploy_key: ${{ secrets.SSH_DEPLOY_KEY }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./_site
